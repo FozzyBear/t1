@@ -13,11 +13,12 @@ import {
 } from "react-native";
 
 import { MonoText } from "../components/StyledText";
+import firebase from "firebase/app";
+import "firebase/auth";
 import db from "../db.js";
 
 export default function HomeScreen() {
   const [messages, setMessages] = useState([]);
-  const [from, setFrom] = React.useState("");
   const [to, setTo] = React.useState("");
   const [text, setText] = React.useState("");
   const [id, setId] = React.useState("");
@@ -40,19 +41,20 @@ export default function HomeScreen() {
   };
 
   const handleSend = () => {
+    const from = firebase.auth().currentUser.uid
     if (id) {
-      db.collection("messages").doc(id).update({ from, to, text })
+      db.collection("messages")
+        .doc(id)
+        .update({ from, to, text });
     } else {
       db.collection("messages").add({ from, to, text });
     }
-    setFrom("")
-    setTo("")
-    setText("")
-    setId("")
+    setTo("");
+    setText("");
+    setId("");
   };
 
   const handleEdit = message => {
-    setFrom(message.from);
     setTo(message.to);
     setText(message.text);
     setId(message.id);
@@ -63,24 +65,18 @@ export default function HomeScreen() {
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
-        keyboardShouldPersistTaps='always'
+        keyboardShouldPersistTaps="always"
       >
         {messages.map((message, i) => (
           <View style={styles.getStartedText} key={i}>
             <Text>
-              {message.id} - {message.text}
+              {message.from} - {message.to} - {message.text}
             </Text>
             <Button title="Edit" onPress={() => handleEdit(message)} />
             <Button title="X" onPress={() => handleDelete(message)} />
           </View>
         ))}
       </ScrollView>
-      <TextInput
-        style={{ height: 40, borderColor: "gray", borderWidth: 1 }}
-        onChangeText={setFrom}
-        placeholder="From"
-        value={from}
-      />
       <TextInput
         style={{ height: 40, borderColor: "gray", borderWidth: 1 }}
         onChangeText={setTo}
