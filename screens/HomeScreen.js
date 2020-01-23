@@ -17,6 +17,8 @@ import firebase from "firebase/app";
 import "firebase/auth";
 import db from "../db.js";
 
+import Message from "./Message.js";
+
 export default function HomeScreen() {
   const [messages, setMessages] = useState([]);
   const [to, setTo] = React.useState("");
@@ -34,14 +36,8 @@ export default function HomeScreen() {
     });
   }, []);
 
-  const handleDelete = message => {
-    db.collection("messages")
-      .doc(message.id)
-      .delete();
-  };
-
   const handleSend = () => {
-    const from = firebase.auth().currentUser.uid
+    const from = firebase.auth().currentUser.uid;
     if (id) {
       db.collection("messages")
         .doc(id)
@@ -60,6 +56,10 @@ export default function HomeScreen() {
     setId(message.id);
   };
 
+  const handleLogout = () => {
+    firebase.auth().signOut();
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -68,13 +68,7 @@ export default function HomeScreen() {
         keyboardShouldPersistTaps="always"
       >
         {messages.map((message, i) => (
-          <View style={styles.getStartedText} key={i}>
-            <Text>
-              {message.from} - {message.to} - {message.text}
-            </Text>
-            <Button title="Edit" onPress={() => handleEdit(message)} />
-            <Button title="X" onPress={() => handleDelete(message)} />
-          </View>
+          <Message key={i} message={message} handleEdit={handleEdit} />
         ))}
       </ScrollView>
       <TextInput
@@ -90,6 +84,7 @@ export default function HomeScreen() {
         value={text}
       />
       <Button title="Send" onPress={handleSend} />
+      <Button title="Logout" onPress={handleLogout} />
     </View>
   );
 }
@@ -176,7 +171,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4
   },
   getStartedText: {
-    fontSize: 17,
+    fontSize: 24,
     color: "rgba(96,100,109, 1)",
     lineHeight: 24,
     textAlign: "center"
