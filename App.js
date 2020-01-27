@@ -30,7 +30,13 @@ export default function App(props) {
 
   const handleRegister = async () => {
     await firebase.auth().createUserWithEmailAndPassword(email, password);
-    db.collection('users').doc(firebase.auth().currentUser.uid).add({displayName:"", photoURL:""})
+    db.collection("users")
+      .doc(firebase.auth().currentUser.uid)
+      .add({
+        displayName: email,
+        photoURL:
+          "https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png"
+      });
   };
 
   const handleLogin = () => {
@@ -66,7 +72,7 @@ export default function App(props) {
       </View>
     );
   } else {
-    console.log('user', user)
+    console.log("user", user);
     return (
       <View style={styles.container}>
         {Platform.OS === "ios" && <StatusBar barStyle="default" />}
